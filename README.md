@@ -1,7 +1,7 @@
-# 📄 README for Reconstructed ⚛️ Evolution Framework
+# 📄 README for ⚛️ Evolution Framework
 
 ## 📝 Overview
-The Reconstructed ⚛️ Evolution Framework is an advanced toolkit designed to explore evolutionary algorithms enhanced by quantum computing principles. This framework combines the strengths of classical evolutionary strategies with quantum-inspired enhancements to achieve significant improvements in solving optimization and reinforcement learning problems.
+The ⚛️ Evolution Framework is an advanced toolkit designed to explore evolutionary algorithms enhanced by quantum computing principles. This framework combines the strengths of classical evolutionary strategies with quantum-inspired enhancements to achieve significant improvements in solving optimization and reinforcement learning problems.
 
 ## 🔑 Key Components
 - **`quantum_enhanced_ea.py`**: Implements evolutionary algorithms enhanced by quantum mechanisms to optimize fitness functions.
