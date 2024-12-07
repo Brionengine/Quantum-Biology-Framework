@@ -1,0 +1,81 @@
+import numpy as np
+import tensorflow as tf
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense, Dropout
+
+class ClinicalTrialSimulation:
+    def __init__(self, num_patients=1000):
+        """
+        Initialize the clinical trial simulation with virtual patients.
+        :param num_patients: Number of virtual patients in the trial.
+        """
+        self.num_patients = num_patients
+        self.patients = self.generate_patient_data()
+        self.model = self.build_model()
+
+    def generate_patient_data(self):
+        """
+        Generate virtual patient profiles with randomized features.
+        Features include: Age, Weight, Genetic Marker (simplified), Pre-existing Conditions (binary).
+        """
+        np.random.seed(42)
+        age = np.random.randint(18, 80, self.num_patients)  # Age range: 18-80 years
+        weight = np.random.randint(50, 120, self.num_patients)  # Weight in kg
+        genetic_marker = np.random.choice([0, 1], self.num_patients)  # Binary genetic marker
+        pre_existing_conditions = np.random.choice([0, 1], self.num_patients)  # Binary condition presence
+
+        return np.column_stack((age, weight, genetic_marker, pre_existing_conditions))
+
+    def build_model(self):
+        """
+        Build a simple neural network to predict drug effectiveness and reactions.
+        """
+        model = Sequential([
+            Dense(64, input_dim=4, activation='relu'),  # Input: Patient features
+            Dropout(0.2),
+            Dense(32, activation='relu'),
+            Dense(2, activation='softmax')  # Output: [Effectiveness, Adverse Reaction]
+        ])
+        model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+        return model
+
+    def train(self, responses, epochs=50, batch_size=32):
+        """
+        Train the model with virtual responses to the drug.
+        :param responses: Simulated responses (target data).
+        :param epochs: Number of training epochs.
+        :param batch_size: Batch size for training.
+        """
+        self.model.fit(self.patients, responses, epochs=epochs, batch_size=batch_size, verbose=1)
+
+    def simulate_responses(self):
+        """
+        Simulate responses for the virtual patients.
+        Returns a dataset of effectiveness and adverse reaction probabilities.
+        """
+        # Mock data: Simulating responses where most patients have high effectiveness and low adverse reactions
+        effectiveness = np.random.choice([0, 1], self.num_patients, p=[0.3, 0.7])
+        adverse_reaction = np.random.choice([0, 1], self.num_patients, p=[0.9, 0.1])
+        return np.column_stack((effectiveness, adverse_reaction))
+
+    def predict(self, new_patients):
+        """
+        Predict drug response for new patients.
+        :param new_patients: Feature data for new patients.
+        """
+        return self.model.predict(new_patients)
+
+# Example Usage
+# Initialize the simulation
+trial_simulation = ClinicalTrialSimulation()
+
+# Simulate drug responses
+responses = trial_simulation.simulate_responses()
+
+# Train the model
+trial_simulation.train(responses, epochs=10, batch_size=16)
+
+# Predict for new patients (mock test data)
+new_patients = np.random.randint(18, 80, (5, 4))  # Mock data for 5 new patients
+predictions = trial_simulation.predict(new_patients)
+print(predictions)
