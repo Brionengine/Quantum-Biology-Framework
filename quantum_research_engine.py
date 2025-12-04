@@ -42,7 +42,14 @@ logging.basicConfig(
 )
 
 CONFIG = {
-    "model_name": "meta-llama/Llama-2-13b-chat-hf",
+    "model_name": "deepseek-ai/DeepSeek-V3.2-Speciale",
+    "model_candidates": [
+        "deepseek-ai/DeepSeek-V3.2-Speciale",
+        "deepseek-ai/DeepSeek-V2.6-Chat",
+        "mistralai/Mixtral-8x22B-Instruct",
+        "qwen/Qwen2.5-72B-Instruct",
+        "meta-llama/Meta-Llama-3-70B-Instruct",
+    ],
     # Core scientific domains
     "knowledge_domains": [
         "biology", "medicine", "quantum physics", "bioinformatics",
@@ -201,12 +208,11 @@ class ResearchSynthesizer:
 class BioImmortalityAI:
     def __init__(self, config):
         self.config = config
-        self.tokenizer = AutoTokenizer.from_pretrained(config['model_name'])
-        self.model = AutoModelForCausalLM.from_pretrained(
-            config['model_name'],
-            torch_dtype=torch.float16,
-            device_map="auto"
-        )
+        (
+            self.tokenizer,
+            self.model,
+            self.model_name,
+        ) = self._initialize_model_stack()
         self.memory = []
         self.domain_knowledge = {}
         
@@ -226,11 +232,121 @@ class BioImmortalityAI:
 
         logging.info("BioImmortalityAI initialized with all components")
 
+    def _initialize_model_stack(self) -> Tuple[Any, Any, str]:
+        """Attempt to load preferred open-source models with graceful fallback."""
+        model_sequence = []
+        preferred = self.config.get("model_name")
+        if preferred:
+            model_sequence.append(preferred)
+        for candidate in self.config.get("model_candidates", []):
+            if candidate not in model_sequence:
+                model_sequence.append(candidate)
+
+        last_error: Optional[Exception] = None
+        for model_id in model_sequence:
+            try:
+                tokenizer = AutoTokenizer.from_pretrained(model_id)
+                model = AutoModelForCausalLM.from_pretrained(
+                    model_id,
+                    torch_dtype=torch.float16,
+                    device_map="auto",
+                )
+                logging.info("Loaded model %s for BioImmortalityAI", model_id)
+                return tokenizer, model, model_id
+            except Exception as exc:  # pragma: no cover - fallback path
+                last_error = exc
+                logging.warning("Model %s could not be loaded: %s", model_id, exc)
+
+        raise RuntimeError("Failed to load any configured model candidates") from last_error
+
     def load_domain_knowledge(self):
         """Load knowledge for each domain."""
         for domain in self.config['knowledge_domains']:
             self.domain_knowledge[domain] = self._load_domain_specific_knowledge(domain)
             logging.info(f"Loaded knowledge for domain: {domain}")
+
+        # New: ingest external longevity datasets
+        self._load_external_longevity_resources()
+
+    def generate_rejuvenation_hypothesis_from_text(
+        self,
+        description: str,
+        hypothesis_id: Optional[str] = None,
+        max_tokens: int = 512,
+    ) -> Dict[str, Any]:
+        """
+        Use the LLM to turn a natural language description into a structured
+        RejuvenationHypothesis and register it in the AgeReversalResearchEngine.
+
+        This is research-only, NOT a treatment recommender.
+        """
+        if hypothesis_id is None:
+            hypothesis_id = f"h_{uuid.uuid4().hex[:8]}"
+
+        system_prompt = (
+            "You are a biomedical research assistant specialized in aging, "
+            "longevity, and age reversal. You receive a description of a "
+            "rejuvenation strategy and must output a JSON object with the "
+            "following schema:\n"
+            "{\n"
+            '  "id": "string",\n'
+            '  "rationale": "string",\n'
+            '  "predicted_benefits": ["..."],\n'
+            '  "predicted_risks": ["..."],\n'
+            '  "metadata": {"notes": "..."},\n'
+            '  "interventions": [\n'
+            "     {\n"
+            '       "name": "string",\n'
+            '       "modality": "drug|gene_therapy|lifestyle|cell_therapy|other",\n'
+            '       "targets": ["hallmark_or_pathway_1", "..."],\n'
+            '       "evidence_level": "preclinical|early_clinical|observational|theoretical",\n'
+            '       "risk_flags": ["..."],\n'
+            '       "notes": "string"\n'
+            "     }\n"
+            "  ]\n"
+            "}\n"
+            "Only output valid JSON, with no commentary."
+        )
+
+        prompt = (
+            f"{system_prompt}\n\n"
+            f"Description:\n{description}\n\n"
+            f'Remember to set "id" to "{hypothesis_id}".'
+        )
+
+        inputs = self.tokenizer(
+            prompt,
+            return_tensors="pt"
+        ).to(self.model.device)
+
+        with torch.no_grad():
+            output_ids = self.model.generate(
+                **inputs,
+                max_new_tokens=max_tokens,
+                do_sample=True,
+                top_p=self.config['research_parameters'].get('top_p', 0.9),
+                temperature=self.config['research_parameters'].get('temperature', 0.7)
+            )
+
+        full_text = self.tokenizer.decode(output_ids[0], skip_special_tokens=True)
+
+        try:
+            json_start = full_text.find("{")
+            json_str = full_text[json_start:]
+            spec = json.loads(json_str)
+        except Exception as e:
+            return {"status": "error", "message": f"Failed to parse JSON: {e}", "raw": full_text}
+
+        spec.setdefault("id", hypothesis_id)
+        hypothesis = self.age_reversal_engine.create_hypothesis_from_spec(spec)
+
+        summary = self.age_reversal_engine.simple_consistency_check(hypothesis.id)
+        return {
+            "status": "ok",
+            "hypothesis_id": hypothesis.id,
+            "hypothesis": hypothesis,
+            "summary": summary,
+        }
 
         # New: ingest external longevity datasets
         self._load_external_longevity_resources()
@@ -546,6 +662,40 @@ class BioImmortalityAI:
             ])
         
         return knowledge
+
+    def _load_external_longevity_resources(self):
+        """Load curated external longevity datasets into the knowledge graph."""
+        try:
+            genage_genes = self.longevity_loader.load_genage()
+            drugage_compounds = self.longevity_loader.load_drugage()
+            aging_trials = self.longevity_loader.load_aging_trials()
+
+            self.longevity_data_cache['genage'] = genage_genes
+            self.longevity_data_cache['drugage'] = drugage_compounds
+            self.longevity_data_cache['aging_trials'] = aging_trials
+
+            for gene in genage_genes:
+                gene_symbol = gene.get("symbol") or gene.get("GeneSymbol")
+                if not gene_symbol:
+                    continue
+                self.knowledge_graph.add_concept(
+                    gene_symbol,
+                    {"type": "aging_gene", "source": "GenAge"}
+                )
+
+            for compound in drugage_compounds:
+                name = compound.get("compound_name") or compound.get("Drug")
+                if not name:
+                    continue
+                self.knowledge_graph.add_concept(
+                    name,
+                    {"type": "gerotherapeutic_candidate", "source": "DrugAge"}
+                )
+
+            logging.info("External longevity datasets loaded and integrated into knowledge graph")
+
+        except Exception as e:
+            logging.error(f"Error loading longevity resources: {e}")
 
     def _load_external_longevity_resources(self):
         """Load curated external longevity datasets into the knowledge graph."""

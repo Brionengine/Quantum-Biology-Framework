@@ -39,20 +39,37 @@ class MLPerfBrionQuantumIntegration:
     """Lightweight bridge that mimics MLPerf v5.1 training flows."""
 
     DEFAULT_BENCHMARKS: List[str] = [
-        "llama3_405b",
-        "llama3_8b",
-        "llama2_70b_lora",
+        "deepseek_speciale",  # DeepSeek V3.2 Speciale
+        "deepseek_v2_6_chat",
+        "mixtral_8x22b_instruct",
+        "qwen2_5_72b_instruct",
         "flux1_image_gen",
         "dlrm_dcnv2",
         "r_gat_gnn",
         "retinanet",
     ]
 
-    def __init__(self, mlperf_root: Path, output_dir: Path):
+    DEFAULT_QUANTUM_HARDWARE: List[str] = [
+        "Google Willow QPU",
+        "IBM Quantum System",
+        "D-Wave Advantage",
+        "IonQ Forte",
+        "Rigetti Aspen",
+    ]
+
+    def __init__(
+        self,
+        mlperf_root: Path,
+        output_dir: Path,
+        quantum_hardware: List[str] | None = None,
+    ):
         self.mlperf_root = Path(mlperf_root)
         self.output_dir = Path(output_dir)
         self.mlperf_root.mkdir(parents=True, exist_ok=True)
         self.output_dir.mkdir(parents=True, exist_ok=True)
+        self.quantum_hardware = (
+            quantum_hardware if quantum_hardware else self.DEFAULT_QUANTUM_HARDWARE
+        )
 
     def generate_synthetic_data(self, benchmark: str) -> Path:
         """Simulate synthetic data generation for a benchmark."""
@@ -75,7 +92,12 @@ class MLPerfBrionQuantumIntegration:
         time_to_train = base_time * time_multiplier * quantum_boost
         final_accuracy = min(1.0, config.target_accuracy + random.uniform(-0.02, 0.05))
 
-        hardware_config = "Blackwell Ultra" if config.quantum_enhanced else "Standard GPU"
+        quantum_stack = ", ".join(self.quantum_hardware)
+        hardware_config = (
+            f"Quantum stack: {quantum_stack}"
+            if config.quantum_enhanced
+            else "Standard GPU"
+        )
 
         return TrainingResult(
             benchmark_name=config.benchmark_name,

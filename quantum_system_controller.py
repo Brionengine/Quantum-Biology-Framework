@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any, Dict, List, Optional
 
 from mlperf_brion_quantum_integration import MLPerfBrionQuantumIntegration
 from quantum_research_engine import BioImmortalityAI, CONFIG
@@ -15,12 +15,18 @@ class QuantumLongevitySystem:
     - MLPerf v5.1-inspired training benchmarks (system performance + training data)
     """
 
-    def __init__(self, output_dir: str = "outputs/mlperf"):
+    def __init__(
+        self,
+        output_dir: str = "outputs/mlperf",
+        quantum_hardware: Optional[List[str]] = None,
+    ):
         self.output_dir = Path(output_dir)
         self.mlperf = MLPerfBrionQuantumIntegration(
             mlperf_root=self.output_dir / "mlperf_training",
             output_dir=self.output_dir,
+            quantum_hardware=quantum_hardware,
         )
+        self.quantum_hardware = quantum_hardware
         self.bio_ai = BioImmortalityAI(CONFIG)
         self.bio_ai.load_domain_knowledge()
 
@@ -48,5 +54,6 @@ class QuantumLongevitySystem:
                 "type": "system_benchmark",
                 "source": "MLPerf Training v5.1",
                 "metrics": self.training_env_metrics,
+                "quantum_hardware": self.quantum_hardware,
             }
         )
