@@ -37,6 +37,15 @@ logging.basicConfig(
 
 CONFIG = {
     "model_name": "meta-llama/Llama-2-13b-chat-hf",
+    # Core scientific domains
+    "knowledge_domains": [
+        "biology", "medicine", "quantum physics", "bioinformatics",
+        "genetics", "epigenetics", "proteomics", "drug discovery",
+        "neural engineering",
+        # Longevity & aging domains
+        "longevity science",          # keep original label
+CONFIG = {
+    "model_name": "meta-llama/Llama-2-13b-chat-hf",
     "knowledge_domains": [
         "biology", "medicine", "quantum physics", "bioinformatics",
         "genetics", "epigenetics", "proteomics", "drug discovery",
@@ -47,6 +56,10 @@ CONFIG = {
         "gerotherapeutics",
         "aging_biomarkers",
         "clinical_aging_trials",
+        "age_reversal_biology",
+        "rejuvenation_strategies",
+        # Higher-level framing
+        "AI", "consciousness"
     ],
     "mode": "infinite_learning",
     "immortality_focus": True,
@@ -232,6 +245,12 @@ class BioImmortalityAI:
                 'telomeres', 'DNA repair', 'gene expression',
                 'epigenetic modifications', 'cellular senescence'
             ])
+        elif domain == 'longevity science':
+            knowledge['concepts'].extend([
+                'aging biology',
+                'longevity interventions',
+                'geroprotectors'
+            ])
         # --- New longevity-specific domains ---
         elif domain == 'longevity_science':
             knowledge['concepts'].extend([
@@ -308,6 +327,32 @@ class BioImmortalityAI:
             knowledge['relationships'].extend([
                 ('TAME', 'metformin', 'tests'),
                 ('agingdb', 'aging pharmacological trials', 'aggregates')
+            ])
+        elif domain == 'age_reversal_biology':
+            knowledge['concepts'].extend([
+                'partial cellular reprogramming',
+                'Yamanaka factors',
+                'transient OSK/OSKM expression',
+                'senescence reversal',
+                'epigenetic age resetting'
+            ])
+            knowledge['relationships'].extend([
+                ('Yamanaka factors', 'epigenetic age resetting', 'enables'),
+                ('partial cellular reprogramming', 'senescence reversal', 'contributes_to')
+            ])
+        elif domain == 'rejuvenation_strategies':
+            knowledge['concepts'].extend([
+                'heterochronic parabiosis',
+                'plasma dilution',
+                'young plasma factors',
+                'autophagy upregulation',
+                'mitochondrial replacement',
+                'cell therapy rejuvenation'
+            ])
+            knowledge['relationships'].extend([
+                ('heterochronic parabiosis', 'young plasma factors', 'introduces'),
+                ('plasma dilution', 'aging factors', 'reduces'),
+                ('autophagy upregulation', 'cellular cleanup', 'promotes')
             ])
         elif domain == 'proteomics':
             knowledge['concepts'].extend([
