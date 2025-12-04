@@ -9,6 +9,7 @@ from configparser import _Parser
 import os
 import json
 import random
+import uuid
 import numpy as np
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
@@ -21,11 +22,17 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
 import matplotlib.pyplot as plt
 import seaborn as sns
-from typing import List, Dict, Tuple, Optional
+from typing import Any, Dict, List, Optional, Tuple
 import logging
 from datetime import datetime
 import networkx as nx
 from scipy import stats
+from longevity_data_ingestion import LongevityDataLoader
+from age_reversal_module import (
+    AgeReversalResearchEngine,
+    RejuvenationHypothesis,
+    RejuvenationIntervention,
+)
 
 # Configure logging
 logging.basicConfig(
@@ -36,10 +43,22 @@ logging.basicConfig(
 
 CONFIG = {
     "model_name": "meta-llama/Llama-2-13b-chat-hf",
+    # Core scientific domains
     "knowledge_domains": [
         "biology", "medicine", "quantum physics", "bioinformatics",
         "genetics", "epigenetics", "proteomics", "drug discovery",
-        "neural engineering", "longevity science", "AI", "consciousness"
+        "neural engineering",
+        # Longevity & aging domains
+        "longevity science",          # keep original label
+        "longevity_science",
+        "longevity_genomics",
+        "gerotherapeutics",
+        "aging_biomarkers",
+        "clinical_aging_trials",
+        "age_reversal_biology",
+        "rejuvenation_strategies",
+        # Higher-level framing
+        "AI", "consciousness"
     ],
     "mode": "infinite_learning",
     "immortality_focus": True,
@@ -195,7 +214,16 @@ class BioImmortalityAI:
         self.biological_analyzer = BiologicalAnalyzer()
         self.knowledge_graph = KnowledgeGraph()
         self.research_synthesizer = ResearchSynthesizer()
-        
+
+        # New: age reversal / rejuvenation research engine (research-only)
+        self.age_reversal_engine = AgeReversalResearchEngine(
+            knowledge_graph=self.knowledge_graph
+        )
+
+        # New: longevity data integration
+        self.longevity_loader = LongevityDataLoader()
+        self.longevity_data_cache = {}
+
         logging.info("BioImmortalityAI initialized with all components")
 
     def load_domain_knowledge(self):
@@ -203,6 +231,89 @@ class BioImmortalityAI:
         for domain in self.config['knowledge_domains']:
             self.domain_knowledge[domain] = self._load_domain_specific_knowledge(domain)
             logging.info(f"Loaded knowledge for domain: {domain}")
+
+        # New: ingest external longevity datasets
+        self._load_external_longevity_resources()
+
+    def generate_rejuvenation_hypothesis_from_text(
+        self,
+        description: str,
+        hypothesis_id: Optional[str] = None,
+        max_tokens: int = 512,
+    ) -> Dict[str, Any]:
+        """
+        Use the LLM to turn a natural language description into a structured
+        RejuvenationHypothesis and register it in the AgeReversalResearchEngine.
+
+        This is research-only, NOT a treatment recommender.
+        """
+        if hypothesis_id is None:
+            hypothesis_id = f"h_{uuid.uuid4().hex[:8]}"
+
+        system_prompt = (
+            "You are a biomedical research assistant specialized in aging, "
+            "longevity, and age reversal. You receive a description of a "
+            "rejuvenation strategy and must output a JSON object with the "
+            "following schema:\n"
+            "{\n"
+            '  "id": "string",\n'
+            '  "rationale": "string",\n'
+            '  "predicted_benefits": ["..."],\n'
+            '  "predicted_risks": ["..."],\n'
+            '  "metadata": {"notes": "..."},\n'
+            '  "interventions": [\n'
+            "     {\n"
+            '       "name": "string",\n'
+            '       "modality": "drug|gene_therapy|lifestyle|cell_therapy|other",\n'
+            '       "targets": ["hallmark_or_pathway_1", "..."],\n'
+            '       "evidence_level": "preclinical|early_clinical|observational|theoretical",\n'
+            '       "risk_flags": ["..."],\n'
+            '       "notes": "string"\n'
+            "     }\n"
+            "  ]\n"
+            "}\n"
+            "Only output valid JSON, with no commentary."
+        )
+
+        prompt = (
+            f"{system_prompt}\n\n"
+            f"Description:\n{description}\n\n"
+            f'Remember to set "id" to "{hypothesis_id}".'
+        )
+
+        inputs = self.tokenizer(
+            prompt,
+            return_tensors="pt"
+        ).to(self.model.device)
+
+        with torch.no_grad():
+            output_ids = self.model.generate(
+                **inputs,
+                max_new_tokens=max_tokens,
+                do_sample=True,
+                top_p=self.config['research_parameters'].get('top_p', 0.9),
+                temperature=self.config['research_parameters'].get('temperature', 0.7)
+            )
+
+        full_text = self.tokenizer.decode(output_ids[0], skip_special_tokens=True)
+
+        try:
+            json_start = full_text.find("{")
+            json_str = full_text[json_start:]
+            spec = json.loads(json_str)
+        except Exception as e:
+            return {"status": "error", "message": f"Failed to parse JSON: {e}", "raw": full_text}
+
+        spec.setdefault("id", hypothesis_id)
+        hypothesis = self.age_reversal_engine.create_hypothesis_from_spec(spec)
+
+        summary = self.age_reversal_engine.simple_consistency_check(hypothesis.id)
+        return {
+            "status": "ok",
+            "hypothesis_id": hypothesis.id,
+            "hypothesis": hypothesis,
+            "summary": summary,
+        }
 
     def _load_domain_specific_knowledge(self, domain: str) -> Dict:
         """Load domain-specific knowledge and relationships."""
@@ -218,13 +329,165 @@ class BioImmortalityAI:
                 'telomeres', 'DNA repair', 'gene expression',
                 'epigenetic modifications', 'cellular senescence'
             ])
+
+        elif domain in ('longevity science', 'longevity_science'):
+            knowledge['concepts'].extend([
+                'hallmarks of aging',
+                'telomere attrition',
+                'epigenetic alterations',
+                'loss of proteostasis',
+                'mitochondrial dysfunction',
+                'cellular senescence',
+                'stem cell exhaustion',
+                'altered intercellular communication',
+                'inflammaging',
+                'oxidative stress'
+            ])
+            knowledge['relationships'].extend([
+                ('cellular senescence', 'inflammaging', 'contributes_to'),
+                ('mitochondrial dysfunction', 'oxidative stress', 'causes'),
+                ('epigenetic alterations', 'gene expression', 'modulates')
+            ])
+
+        elif domain == 'longevity_genomics':
+            knowledge['concepts'].extend([
+                'GenAge', 'LongevityMap', 'AnAge',
+                'longevity-associated variants',
+                'pro-longevity genes',
+                'anti-longevity genes'
+            ])
+            knowledge['relationships'].extend([
+                ('GenAge', 'longevity-associated genes', 'curates'),
+                ('LongevityMap', 'human longevity variants', 'catalogues'),
+                ('AnAge', 'maximum lifespan', 'provides_records_for')
+            ])
+
+        elif domain == 'gerotherapeutics':
+            knowledge['concepts'].extend([
+                'rapamycin', 'metformin', 'senolytics',
+                'NAD+ boosters', 'sirtuin activators',
+                'caloric restriction mimetics',
+                'mTOR inhibition', 'AMPK activation',
+                'autophagy induction', 'nutrient sensing'
+            ])
+            knowledge['relationships'].extend([
+                ('rapamycin', 'mTOR', 'inhibits'),
+                ('metformin', 'AMPK', 'activates'),
+                ('senolytics', 'senescent cells', 'selectively_eliminate'),
+                ('caloric restriction mimetics', 'nutrient sensing', 'modulate')
+            ])
+
+        elif domain == 'aging_biomarkers':
+            knowledge['concepts'].extend([
+                'epigenetic clocks',
+                'DNA methylation age',
+                'multi-omics aging clocks',
+                'frailty index',
+                'grip strength',
+                'gait speed',
+                'inflammatory markers',
+                'Health Octo / body clock models'
+            ])
+            knowledge['relationships'].extend([
+                ('epigenetic clocks', 'biological age', 'estimate'),
+                ('frailty index', 'disability risk', 'predicts'),
+                ('body clock models', 'aging-related outcomes', 'predict')
+            ])
+
+        elif domain == 'clinical_aging_trials':
+            knowledge['concepts'].extend([
+                'Targeting Aging with Metformin (TAME)',
+                'rapamycin aging trials',
+                'senolytic clinical trials',
+                'aging pharmacological intervention trials',
+                'agingdb clinical trial database'
+            ])
+            knowledge['relationships'].extend([
+                ('TAME', 'metformin', 'tests'),
+                ('agingdb', 'aging pharmacological trials', 'aggregates')
+            ])
+        elif domain == 'age_reversal_biology':
+            knowledge['concepts'].extend([
+                'cellular reprogramming',
+                'partial cellular reprogramming',
+                'Yamanaka factors',
+                'transient reprogramming',
+                'epigenetic rejuvenation',
+                'heterochronic parabiosis',
+                'young blood / plasma factors',
+                'niche rejuvenation',
+                'senescent cell clearance',
+                'systemic rejuvenation signals'
+            ])
+            knowledge['relationships'].extend([
+                ('partial cellular reprogramming', 'epigenetic rejuvenation', 'induces'),
+                ('senescent cell clearance', 'tissue function', 'improves'),
+                ('heterochronic parabiosis', 'systemic rejuvenation signals', 'reveals')
+            ])
+            knowledge['research_findings'].extend([
+                'Experimental approaches aim to rejuvenate cells or tissues without full dedifferentiation',
+                'Balancing rejuvenation with cancer risk is a central safety challenge'
+            ])
+        elif domain == 'rejuvenation_strategies':
+            knowledge['concepts'].extend([
+                'multi-modal rejuvenation',
+                'combination gerotherapeutics',
+                'stacked interventions',
+                'risk/benefit modeling',
+                'tissue-specific rejuvenation',
+                'systems-level rejuvenation design'
+            ])
+            knowledge['relationships'].extend([
+                ('combination gerotherapeutics', 'polypharmacy', 'risk'),
+                ('stacked interventions', 'synergy', 'potential_for'),
+                ('tissue-specific rejuvenation', 'off-target_effects', 'aims_to_minimize')
+            ])
+            knowledge['research_findings'].extend([
+                'Research explores combining multiple aging-pathway interventions while managing safety',
+                'Rejuvenation strategies must be evaluated in controlled experimental or clinical settings'
+            ])
         elif domain == 'proteomics':
             knowledge['concepts'].extend([
                 'protein folding', 'post-translational modifications',
-                'protein-protein interactions', 'proteostasis'
+                'protein-protein interactions', 'proteostasis',
+                'proteotoxic stress'
             ])
         
         return knowledge
+
+    def _load_external_longevity_resources(self):
+        """Load curated external longevity datasets into the knowledge graph."""
+        try:
+            genage_genes = self.longevity_loader.load_genage()
+            drugage_compounds = self.longevity_loader.load_drugage()
+            aging_trials = self.longevity_loader.load_aging_trials()
+
+            self.longevity_data_cache['genage'] = genage_genes
+            self.longevity_data_cache['drugage'] = drugage_compounds
+            self.longevity_data_cache['aging_trials'] = aging_trials
+
+            for gene in genage_genes:
+                gene_symbol = gene.get("symbol") or gene.get("GeneSymbol")
+                if not gene_symbol:
+                    continue
+                self.knowledge_graph.add_concept(
+                    gene_symbol,
+                    {"type": "aging_gene", "source": "GenAge"}
+                )
+
+            for compound in drugage_compounds:
+                name = compound.get("compound_name") or compound.get("Drug")
+                if not name:
+                    continue
+                self.knowledge_graph.add_concept(
+                    name,
+                    {"type": "gerotherapeutic_candidate", "source": "DrugAge"}
+                )
+
+            logging.info("External longevity datasets loaded and integrated into knowledge graph")
+
+        except Exception as e:
+            logging.error(f"Error loading longevity resources: {e}")
 
     def ask(self, query: str) -> str:
         """Process and answer a query."""
