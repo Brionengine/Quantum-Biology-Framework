@@ -44,13 +44,6 @@ CONFIG = {
         "neural engineering",
         # Longevity & aging domains
         "longevity science",          # keep original label
-CONFIG = {
-    "model_name": "meta-llama/Llama-2-13b-chat-hf",
-    "knowledge_domains": [
-        "biology", "medicine", "quantum physics", "bioinformatics",
-        "genetics", "epigenetics", "proteomics", "drug discovery",
-        "neural engineering", "longevity science", "AI", "consciousness",
-        # Longevity-focused domains
         "longevity_science",
         "longevity_genomics",
         "gerotherapeutics",
@@ -231,6 +224,9 @@ class BioImmortalityAI:
         # New: ingest external longevity datasets
         self._load_external_longevity_resources()
 
+        # New: ingest external longevity datasets
+        self._load_external_longevity_resources()
+
     def _load_domain_specific_knowledge(self, domain: str) -> Dict:
         """Load domain-specific knowledge and relationships."""
         knowledge = {
@@ -245,14 +241,8 @@ class BioImmortalityAI:
                 'telomeres', 'DNA repair', 'gene expression',
                 'epigenetic modifications', 'cellular senescence'
             ])
-        elif domain == 'longevity science':
-            knowledge['concepts'].extend([
-                'aging biology',
-                'longevity interventions',
-                'geroprotectors'
-            ])
-        # --- New longevity-specific domains ---
-        elif domain == 'longevity_science':
+
+        elif domain in ('longevity science', 'longevity_science'):
             knowledge['concepts'].extend([
                 'hallmarks of aging',
                 'telomere attrition',
@@ -330,37 +320,86 @@ class BioImmortalityAI:
             ])
         elif domain == 'age_reversal_biology':
             knowledge['concepts'].extend([
+                'cellular reprogramming',
                 'partial cellular reprogramming',
                 'Yamanaka factors',
-                'transient OSK/OSKM expression',
-                'senescence reversal',
-                'epigenetic age resetting'
+                'transient reprogramming',
+                'epigenetic rejuvenation',
+                'heterochronic parabiosis',
+                'young blood / plasma factors',
+                'niche rejuvenation',
+                'senescent cell clearance',
+                'systemic rejuvenation signals'
             ])
             knowledge['relationships'].extend([
-                ('Yamanaka factors', 'epigenetic age resetting', 'enables'),
-                ('partial cellular reprogramming', 'senescence reversal', 'contributes_to')
+                ('partial cellular reprogramming', 'epigenetic rejuvenation', 'induces'),
+                ('senescent cell clearance', 'tissue function', 'improves'),
+                ('heterochronic parabiosis', 'systemic rejuvenation signals', 'reveals')
+            ])
+            knowledge['research_findings'].extend([
+                'Experimental approaches aim to rejuvenate cells or tissues without full dedifferentiation',
+                'Balancing rejuvenation with cancer risk is a central safety challenge'
             ])
         elif domain == 'rejuvenation_strategies':
             knowledge['concepts'].extend([
-                'heterochronic parabiosis',
-                'plasma dilution',
-                'young plasma factors',
-                'autophagy upregulation',
-                'mitochondrial replacement',
-                'cell therapy rejuvenation'
+                'multi-modal rejuvenation',
+                'combination gerotherapeutics',
+                'stacked interventions',
+                'risk/benefit modeling',
+                'tissue-specific rejuvenation',
+                'systems-level rejuvenation design'
             ])
             knowledge['relationships'].extend([
-                ('heterochronic parabiosis', 'young plasma factors', 'introduces'),
-                ('plasma dilution', 'aging factors', 'reduces'),
-                ('autophagy upregulation', 'cellular cleanup', 'promotes')
+                ('combination gerotherapeutics', 'polypharmacy', 'risk'),
+                ('stacked interventions', 'synergy', 'potential_for'),
+                ('tissue-specific rejuvenation', 'off-target_effects', 'aims_to_minimize')
+            ])
+            knowledge['research_findings'].extend([
+                'Research explores combining multiple aging-pathway interventions while managing safety',
+                'Rejuvenation strategies must be evaluated in controlled experimental or clinical settings'
             ])
         elif domain == 'proteomics':
             knowledge['concepts'].extend([
                 'protein folding', 'post-translational modifications',
-                'protein-protein interactions', 'proteostasis'
+                'protein-protein interactions', 'proteostasis',
+                'proteotoxic stress'
             ])
         
         return knowledge
+
+    def _load_external_longevity_resources(self):
+        """Load curated external longevity datasets into the knowledge graph."""
+        try:
+            genage_genes = self.longevity_loader.load_genage()
+            drugage_compounds = self.longevity_loader.load_drugage()
+            aging_trials = self.longevity_loader.load_aging_trials()
+
+            self.longevity_data_cache['genage'] = genage_genes
+            self.longevity_data_cache['drugage'] = drugage_compounds
+            self.longevity_data_cache['aging_trials'] = aging_trials
+
+            for gene in genage_genes:
+                gene_symbol = gene.get("symbol") or gene.get("GeneSymbol")
+                if not gene_symbol:
+                    continue
+                self.knowledge_graph.add_concept(
+                    gene_symbol,
+                    {"type": "aging_gene", "source": "GenAge"}
+                )
+
+            for compound in drugage_compounds:
+                name = compound.get("compound_name") or compound.get("Drug")
+                if not name:
+                    continue
+                self.knowledge_graph.add_concept(
+                    name,
+                    {"type": "gerotherapeutic_candidate", "source": "DrugAge"}
+                )
+
+            logging.info("External longevity datasets loaded and integrated into knowledge graph")
+
+        except Exception as e:
+            logging.error(f"Error loading longevity resources: {e}")
 
     def _load_external_longevity_resources(self):
         """Load curated external longevity datasets into the knowledge graph."""
