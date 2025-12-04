@@ -26,6 +26,7 @@ import logging
 from datetime import datetime
 import networkx as nx
 from scipy import stats
+from longevity_data_ingestion import LongevityDataLoader
 
 # Configure logging
 logging.basicConfig(
@@ -201,7 +202,11 @@ class BioImmortalityAI:
         self.biological_analyzer = BiologicalAnalyzer()
         self.knowledge_graph = KnowledgeGraph()
         self.research_synthesizer = ResearchSynthesizer()
-        
+
+        # New: longevity data integration
+        self.longevity_loader = LongevityDataLoader()
+        self.longevity_data_cache = {}
+
         logging.info("BioImmortalityAI initialized with all components")
 
     def load_domain_knowledge(self):
@@ -209,6 +214,9 @@ class BioImmortalityAI:
         for domain in self.config['knowledge_domains']:
             self.domain_knowledge[domain] = self._load_domain_specific_knowledge(domain)
             logging.info(f"Loaded knowledge for domain: {domain}")
+
+        # New: ingest external longevity datasets
+        self._load_external_longevity_resources()
 
     def _load_domain_specific_knowledge(self, domain: str) -> Dict:
         """Load domain-specific knowledge and relationships."""
@@ -308,6 +316,40 @@ class BioImmortalityAI:
             ])
         
         return knowledge
+
+    def _load_external_longevity_resources(self):
+        """Load curated external longevity datasets into the knowledge graph."""
+        try:
+            genage_genes = self.longevity_loader.load_genage()
+            drugage_compounds = self.longevity_loader.load_drugage()
+            aging_trials = self.longevity_loader.load_aging_trials()
+
+            self.longevity_data_cache['genage'] = genage_genes
+            self.longevity_data_cache['drugage'] = drugage_compounds
+            self.longevity_data_cache['aging_trials'] = aging_trials
+
+            for gene in genage_genes:
+                gene_symbol = gene.get("symbol") or gene.get("GeneSymbol")
+                if not gene_symbol:
+                    continue
+                self.knowledge_graph.add_concept(
+                    gene_symbol,
+                    {"type": "aging_gene", "source": "GenAge"}
+                )
+
+            for compound in drugage_compounds:
+                name = compound.get("compound_name") or compound.get("Drug")
+                if not name:
+                    continue
+                self.knowledge_graph.add_concept(
+                    name,
+                    {"type": "gerotherapeutic_candidate", "source": "DrugAge"}
+                )
+
+            logging.info("External longevity datasets loaded and integrated into knowledge graph")
+
+        except Exception as e:
+            logging.error(f"Error loading longevity resources: {e}")
 
     def ask(self, query: str) -> str:
         """Process and answer a query."""
