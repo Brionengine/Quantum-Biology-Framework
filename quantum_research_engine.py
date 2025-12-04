@@ -44,6 +44,13 @@ CONFIG = {
         "neural engineering",
         # Longevity & aging domains
         "longevity science",          # keep original label
+CONFIG = {
+    "model_name": "meta-llama/Llama-2-13b-chat-hf",
+    "knowledge_domains": [
+        "biology", "medicine", "quantum physics", "bioinformatics",
+        "genetics", "epigenetics", "proteomics", "drug discovery",
+        "neural engineering", "longevity science", "AI", "consciousness",
+        # Longevity-focused domains
         "longevity_science",
         "longevity_genomics",
         "gerotherapeutics",
