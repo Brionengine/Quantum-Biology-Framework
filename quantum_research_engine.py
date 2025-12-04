@@ -39,7 +39,13 @@ CONFIG = {
     "knowledge_domains": [
         "biology", "medicine", "quantum physics", "bioinformatics",
         "genetics", "epigenetics", "proteomics", "drug discovery",
-        "neural engineering", "longevity science", "AI", "consciousness"
+        "neural engineering", "longevity science", "AI", "consciousness",
+        # Longevity-focused domains
+        "longevity_science",
+        "longevity_genomics",
+        "gerotherapeutics",
+        "aging_biomarkers",
+        "clinical_aging_trials",
     ],
     "mode": "infinite_learning",
     "immortality_focus": True,
