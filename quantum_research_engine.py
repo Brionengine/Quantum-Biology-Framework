@@ -224,6 +224,83 @@ class BioImmortalityAI:
                 'telomeres', 'DNA repair', 'gene expression',
                 'epigenetic modifications', 'cellular senescence'
             ])
+        # --- New longevity-specific domains ---
+        elif domain == 'longevity_science':
+            knowledge['concepts'].extend([
+                'hallmarks of aging',
+                'telomere attrition',
+                'epigenetic alterations',
+                'loss of proteostasis',
+                'mitochondrial dysfunction',
+                'cellular senescence',
+                'stem cell exhaustion',
+                'altered intercellular communication',
+                'inflammaging',
+                'oxidative stress'
+            ])
+            knowledge['relationships'].extend([
+                ('cellular senescence', 'inflammaging', 'contributes_to'),
+                ('mitochondrial dysfunction', 'oxidative stress', 'causes'),
+                ('epigenetic alterations', 'gene expression', 'modulates')
+            ])
+
+        elif domain == 'longevity_genomics':
+            knowledge['concepts'].extend([
+                'GenAge', 'LongevityMap', 'AnAge',
+                'longevity-associated variants',
+                'pro-longevity genes',
+                'anti-longevity genes'
+            ])
+            knowledge['relationships'].extend([
+                ('GenAge', 'longevity-associated genes', 'curates'),
+                ('LongevityMap', 'human longevity variants', 'catalogues'),
+                ('AnAge', 'maximum lifespan', 'provides_records_for')
+            ])
+
+        elif domain == 'gerotherapeutics':
+            knowledge['concepts'].extend([
+                'rapamycin', 'metformin', 'senolytics',
+                'NAD+ boosters', 'sirtuin activators',
+                'caloric restriction mimetics',
+                'mTOR inhibition', 'AMPK activation',
+                'autophagy induction', 'nutrient sensing'
+            ])
+            knowledge['relationships'].extend([
+                ('rapamycin', 'mTOR', 'inhibits'),
+                ('metformin', 'AMPK', 'activates'),
+                ('senolytics', 'senescent cells', 'selectively_eliminate'),
+                ('caloric restriction mimetics', 'nutrient sensing', 'modulate')
+            ])
+
+        elif domain == 'aging_biomarkers':
+            knowledge['concepts'].extend([
+                'epigenetic clocks',
+                'DNA methylation age',
+                'multi-omics aging clocks',
+                'frailty index',
+                'grip strength',
+                'gait speed',
+                'inflammatory markers',
+                'Health Octo / body clock models'
+            ])
+            knowledge['relationships'].extend([
+                ('epigenetic clocks', 'biological age', 'estimate'),
+                ('frailty index', 'disability risk', 'predicts'),
+                ('body clock models', 'aging-related outcomes', 'predict')
+            ])
+
+        elif domain == 'clinical_aging_trials':
+            knowledge['concepts'].extend([
+                'Targeting Aging with Metformin (TAME)',
+                'rapamycin aging trials',
+                'senolytic clinical trials',
+                'aging pharmacological intervention trials',
+                'agingdb clinical trial database'
+            ])
+            knowledge['relationships'].extend([
+                ('TAME', 'metformin', 'tests'),
+                ('agingdb', 'aging pharmacological trials', 'aggregates')
+            ])
         elif domain == 'proteomics':
             knowledge['concepts'].extend([
                 'protein folding', 'post-translational modifications',
