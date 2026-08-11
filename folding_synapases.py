@@ -1,14 +1,54 @@
-import numpy as np
-from Bio import PDB
-import Bio.SeqIO
-from Bio.PDB import Structure, Model, Chain
-import alphafold as af
-import strawberryfields as sf
-from strawberryfields.ops import Sgate, Dgate, Rgate, BSgate
-import openmm as mm
-import openmm.app as app
-import openmm.unit as unit
-from scipy.integrate import odeint
+from __future__ import annotations
+
+try:
+    import numpy as np
+except ImportError:  # optional dependency: pip install numpy
+    np = None
+try:
+    from Bio import PDB
+except ImportError:  # optional dependency: pip install biopython
+    PDB = None
+try:
+    import Bio.SeqIO
+except ImportError:  # optional dependency: pip install biopython
+    Bio = None
+try:
+    from Bio.PDB import Structure, Model, Chain
+except ImportError:  # optional dependency: pip install biopython
+    Structure = None
+    Model = None
+    Chain = None
+try:
+    import alphafold as af
+except ImportError:  # optional dependency: pip install alphafold
+    af = None
+try:
+    import strawberryfields as sf
+except ImportError:  # optional dependency: pip install strawberryfields
+    sf = None
+try:
+    from strawberryfields.ops import Sgate, Dgate, Rgate, BSgate
+except ImportError:  # optional dependency: pip install strawberryfields
+    Sgate = None
+    Dgate = None
+    Rgate = None
+    BSgate = None
+try:
+    import openmm as mm
+except ImportError:  # optional dependency: pip install openmm
+    mm = None
+try:
+    import openmm.app as app
+except ImportError:  # optional dependency: pip install openmm
+    app = None
+try:
+    import openmm.unit as unit
+except ImportError:  # optional dependency: pip install openmm
+    unit = None
+try:
+    from scipy.integrate import odeint
+except ImportError:  # optional dependency: pip install scipy
+    odeint = None
 from typing import Dict, List, Optional, Tuple, Any
 from dataclasses import dataclass
 import logging
@@ -670,14 +710,23 @@ class MembraneChannel:
         }
 
 # Real-world quantum measurement hardware interfaces
-import quantum_opus  # For single photon detection
+try:
+    import quantum_opus  # For single photon detection
+except ImportError:  # optional dependency: pip install quantum_opus
+    quantum_opus = None
 import id_quantique  # For quantum random number generation
 import qutools_timetagger  # For time-correlated measurements
-import swabian_instruments  # For coincidence detection
+try:
+    import swabian_instruments  # For coincidence detection
+except ImportError:  # optional dependency: pip install swabian_instruments
+    swabian_instruments = None
 import picoquant_hydraharp  # For photon correlation
 import thorlabs_quantum  # For quantum optics
 import excelitas_spcm  # For single photon counting
-import altera_quantum  # For quantum state tomography
+try:
+    import altera_quantum  # For quantum state tomography
+except ImportError:  # optional dependency: pip install altera_quantum
+    altera_quantum = None
 import zurich_instruments  # For quantum measurements
 
 # Real-world protein structure analysis interfaces

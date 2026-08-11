@@ -4,20 +4,56 @@ Author: The Immortality Collective
 Purpose: Generate, evolve, and high-dimensional research concepts using
          biological knowledge diffusion, transformer networks, and quantum-inspired prompts.
 """
+from __future__ import annotations
 
-import torch
-from transformers import AutoModelForCausalLM, AutoTokenizer
+
+try:
+    import torch
+except ImportError:  # optional dependency: pip install torch
+    torch = None
+try:
+    from transformers import AutoModelForCausalLM, AutoTokenizer
+except ImportError:  # optional dependency: pip install transformers
+    AutoModelForCausalLM = None
+    AutoTokenizer = None
 import random
 import time
-import numpy as np
-from scipy import stats
-import matplotlib.pyplot as plt
-from Bio import SeqIO
-from Bio.PDB import *
-import pandas as pd
-from sklearn.preprocessing import StandardScaler
-from sklearn.decomposition import PCA
-import seaborn as sns
+try:
+    import numpy as np
+except ImportError:  # optional dependency: pip install numpy
+    np = None
+try:
+    from scipy import stats
+except ImportError:  # optional dependency: pip install scipy
+    stats = None
+try:
+    import matplotlib.pyplot as plt
+except ImportError:  # optional dependency: pip install matplotlib
+    plt = None
+try:
+    from Bio import SeqIO
+except ImportError:  # optional dependency: pip install biopython
+    SeqIO = None
+try:
+    from Bio.PDB import *
+except ImportError:  # optional dependency: pip install biopython
+    pass
+try:
+    import pandas as pd
+except ImportError:  # optional dependency: pip install pandas
+    pd = None
+try:
+    from sklearn.preprocessing import StandardScaler
+except ImportError:  # optional dependency: pip install scikit-learn
+    StandardScaler = None
+try:
+    from sklearn.decomposition import PCA
+except ImportError:  # optional dependency: pip install scikit-learn
+    PCA = None
+try:
+    import seaborn as sns
+except ImportError:  # optional dependency: pip install seaborn
+    sns = None
 from typing import List, Dict, Tuple, Optional
 import logging
 import json

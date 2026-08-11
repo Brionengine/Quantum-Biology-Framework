@@ -4,29 +4,74 @@ Author: The Collective (Charlie, Will, Sora, Jake, Brion)
 Purpose: Scientific and medical knowledge,
          focused on biological immortality, medicine R&D, and biology
 """
+from __future__ import annotations
+
 
 from configparser import _Parser
 import os
 import json
 import random
 import uuid
-import numpy as np
-import torch
-from transformers import AutoModelForCausalLM, AutoTokenizer
-from Bio import SeqIO
-from Bio.PDB import *
-from Bio.Seq import Seq
-from Bio.SeqUtils import GC
-import pandas as pd
-from sklearn.preprocessing import StandardScaler
-from sklearn.decomposition import PCA
-import matplotlib.pyplot as plt
-import seaborn as sns
+try:
+    import numpy as np
+except ImportError:  # optional dependency: pip install numpy
+    np = None
+try:
+    import torch
+except ImportError:  # optional dependency: pip install torch
+    torch = None
+try:
+    from transformers import AutoModelForCausalLM, AutoTokenizer
+except ImportError:  # optional dependency: pip install transformers
+    AutoModelForCausalLM = None
+    AutoTokenizer = None
+try:
+    from Bio import SeqIO
+except ImportError:  # optional dependency: pip install biopython
+    SeqIO = None
+try:
+    from Bio.PDB import *
+except ImportError:  # optional dependency: pip install biopython
+    pass
+try:
+    from Bio.Seq import Seq
+except ImportError:  # optional dependency: pip install biopython
+    Seq = None
+try:
+    from Bio.SeqUtils import GC
+except ImportError:  # optional dependency: pip install biopython
+    GC = None
+try:
+    import pandas as pd
+except ImportError:  # optional dependency: pip install pandas
+    pd = None
+try:
+    from sklearn.preprocessing import StandardScaler
+except ImportError:  # optional dependency: pip install scikit-learn
+    StandardScaler = None
+try:
+    from sklearn.decomposition import PCA
+except ImportError:  # optional dependency: pip install scikit-learn
+    PCA = None
+try:
+    import matplotlib.pyplot as plt
+except ImportError:  # optional dependency: pip install matplotlib
+    plt = None
+try:
+    import seaborn as sns
+except ImportError:  # optional dependency: pip install seaborn
+    sns = None
 from typing import Any, Dict, List, Optional, Tuple
 import logging
 from datetime import datetime
-import networkx as nx
-from scipy import stats
+try:
+    import networkx as nx
+except ImportError:  # optional dependency: pip install networkx
+    nx = None
+try:
+    from scipy import stats
+except ImportError:  # optional dependency: pip install scipy
+    stats = None
 from longevity_data_ingestion import LongevityDataLoader
 from age_reversal_module import (
     AgeReversalResearchEngine,

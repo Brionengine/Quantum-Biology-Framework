@@ -1,7 +1,12 @@
+from __future__ import annotations
+
 
 # Quantum-Enhanced Evolutionary Algorithm (QEA)
 
-import numpy as np
+try:
+    import numpy as np
+except ImportError:  # optional dependency: pip install numpy
+    np = None
 
 class QuantumEnhancedEvolutionaryAlgorithm:
     def __init__(self, population_size, num_generations):

@@ -1,11 +1,37 @@
-import numpy as np
-import strawberryfields as sf
-from strawberryfields.ops import *
-import openmm as mm
-import openmm.app as app
-import openmm.unit as unit
-from Bio.PDB import *
-import alphafold as af
+from __future__ import annotations
+
+try:
+    import numpy as np
+except ImportError:  # optional dependency: pip install numpy
+    np = None
+try:
+    import strawberryfields as sf
+except ImportError:  # optional dependency: pip install strawberryfields
+    sf = None
+try:
+    from strawberryfields.ops import *
+except ImportError:  # optional dependency: pip install strawberryfields
+    pass
+try:
+    import openmm as mm
+except ImportError:  # optional dependency: pip install openmm
+    mm = None
+try:
+    import openmm.app as app
+except ImportError:  # optional dependency: pip install openmm
+    app = None
+try:
+    import openmm.unit as unit
+except ImportError:  # optional dependency: pip install openmm
+    unit = None
+try:
+    from Bio.PDB import *
+except ImportError:  # optional dependency: pip install biopython
+    pass
+try:
+    import alphafold as af
+except ImportError:  # optional dependency: pip install alphafold
+    af = None
 
 
 

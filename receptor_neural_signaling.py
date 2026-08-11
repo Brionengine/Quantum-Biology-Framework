@@ -1,9 +1,29 @@
-import numpy as np
-import strawberryfields as sf
-from strawberryfields.ops import *
-from Bio.PDB import *
-import alphafold as af
-from scipy.integrate import odeint
+from __future__ import annotations
+
+try:
+    import numpy as np
+except ImportError:  # optional dependency: pip install numpy
+    np = None
+try:
+    import strawberryfields as sf
+except ImportError:  # optional dependency: pip install strawberryfields
+    sf = None
+try:
+    from strawberryfields.ops import *
+except ImportError:  # optional dependency: pip install strawberryfields
+    pass
+try:
+    from Bio.PDB import *
+except ImportError:  # optional dependency: pip install biopython
+    pass
+try:
+    import alphafold as af
+except ImportError:  # optional dependency: pip install alphafold
+    af = None
+try:
+    from scipy.integrate import odeint
+except ImportError:  # optional dependency: pip install scipy
+    odeint = None
 import logging
 
 # Mock hardware interfaces
@@ -84,8 +104,14 @@ class swabian_instruments:
         def shutdown(self): pass
 
 # Quantum measurement hardware
-import quantum_opus
-import altera_quantum
+try:
+    import quantum_opus
+except ImportError:  # optional dependency: pip install quantum_opus
+    quantum_opus = None
+try:
+    import altera_quantum
+except ImportError:  # optional dependency: pip install altera_quantum
+    altera_quantum = None
 
 logger = logging.getLogger(__name__)
 

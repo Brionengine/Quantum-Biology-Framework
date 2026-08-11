@@ -1,4 +1,9 @@
-import numpy as np
+from __future__ import annotations
+
+try:
+    import numpy as np
+except ImportError:  # optional dependency: pip install numpy
+    np = None
 
 # Mock strawberryfields
 class sf:
@@ -21,18 +26,42 @@ class Dgate(Sgate): pass
 class Rgate(Sgate): pass
 class BSgate(Sgate): pass
 
-from Bio.Seq import Seq
-from Bio.PDB import *
-import alphafold as af
-import openmm.app as app
-import openmm.unit as unit
+try:
+    from Bio.Seq import Seq
+except ImportError:  # optional dependency: pip install biopython
+    Seq = None
+try:
+    from Bio.PDB import *
+except ImportError:  # optional dependency: pip install biopython
+    pass
+try:
+    import alphafold as af
+except ImportError:  # optional dependency: pip install alphafold
+    af = None
+try:
+    import openmm.app as app
+except ImportError:  # optional dependency: pip install openmm
+    app = None
+try:
+    import openmm.unit as unit
+except ImportError:  # optional dependency: pip install openmm
+    unit = None
 from typing import Dict, List, Optional, Tuple, Any
 import logging
 
 # Quantum measurement hardware (only for quantum resources)
-import quantum_opus  # For single photon detection
-import swabian_instruments  # For coincidence detection
-import altera_quantum  # For quantum state tomography
+try:
+    import quantum_opus  # For single photon detection
+except ImportError:  # optional dependency: pip install quantum_opus
+    quantum_opus = None
+try:
+    import swabian_instruments  # For coincidence detection
+except ImportError:  # optional dependency: pip install swabian_instruments
+    swabian_instruments = None
+try:
+    import altera_quantum  # For quantum state tomography
+except ImportError:  # optional dependency: pip install altera_quantum
+    altera_quantum = None
 
 logger = logging.getLogger(__name__)
 
@@ -2636,7 +2665,10 @@ class ProteinQualityControl:
             }
         }
 
-import numpy as np
+try:
+    import numpy as np
+except ImportError:  # optional dependency: pip install numpy
+    np = None
 
 # Mock strawberryfields
 class sf:
@@ -2659,7 +2691,10 @@ class Dgate(Sgate): pass
 class Rgate(Sgate): pass
 class BSgate(Sgate): pass
 
-from Bio.Seq import Seq
+try:
+    from Bio.Seq import Seq
+except ImportError:  # optional dependency: pip install biopython
+    Seq = None
 
 class SynapticVesicleDynamics:
     def initialize_quantum_state(self) -> sf.engine.Result:
@@ -3317,25 +3352,61 @@ class ReceptorSignaling:
                         (self.kinases['pka']['total'] - self.kinases['pka']['active'])
         self.kinases['pka']['active'] += pka_activation * dt
 
-import numpy as np
-import strawberryfields as sf
-from strawberryfields.ops import *
-from Bio.Seq import Seq
-from Bio.PDB import *
-import alphafold as af
-import openmm.app as app
-import openmm.unit as unit
+try:
+    import numpy as np
+except ImportError:  # optional dependency: pip install numpy
+    np = None
+try:
+    import strawberryfields as sf
+except ImportError:  # optional dependency: pip install strawberryfields
+    sf = None
+try:
+    from strawberryfields.ops import *
+except ImportError:  # optional dependency: pip install strawberryfields
+    pass
+try:
+    from Bio.Seq import Seq
+except ImportError:  # optional dependency: pip install biopython
+    Seq = None
+try:
+    from Bio.PDB import *
+except ImportError:  # optional dependency: pip install biopython
+    pass
+try:
+    import alphafold as af
+except ImportError:  # optional dependency: pip install alphafold
+    af = None
+try:
+    import openmm.app as app
+except ImportError:  # optional dependency: pip install openmm
+    app = None
+try:
+    import openmm.unit as unit
+except ImportError:  # optional dependency: pip install openmm
+    unit = None
 from typing import Dict, List, Optional, Tuple, Any
 import logging
 
 # Quantum measurement hardware (only for quantum resources)
-import quantum_opus  # For single photon detection
-import swabian_instruments  # For coincidence detection
-import altera_quantum  # For quantum state tomography
+try:
+    import quantum_opus  # For single photon detection
+except ImportError:  # optional dependency: pip install quantum_opus
+    quantum_opus = None
+try:
+    import swabian_instruments  # For coincidence detection
+except ImportError:  # optional dependency: pip install swabian_instruments
+    swabian_instruments = None
+try:
+    import altera_quantum  # For quantum state tomography
+except ImportError:  # optional dependency: pip install altera_quantum
+    altera_quantum = None
 
 logger = logging.getLogger(__name__)
 
-import numpy as np
+try:
+    import numpy as np
+except ImportError:  # optional dependency: pip install numpy
+    np = None
 
 # Mock strawberryfields
 class sf:
@@ -3358,7 +3429,10 @@ class Dgate(Sgate): pass
 class Rgate(Sgate): pass
 class BSgate(Sgate): pass
 
-from Bio.Seq import Seq
+try:
+    from Bio.Seq import Seq
+except ImportError:  # optional dependency: pip install biopython
+    Seq = None
 
 class BiologicalNeuralEntanglement:
     """Models quantum entanglement in biological neural systems"""
@@ -5487,20 +5561,50 @@ class MitochondrialDynamics:
             'calcium_uniporter': self.calcium_uniporter
         }
 
-import strawberryfields as sf
-from strawberryfields.ops import *
-from Bio.Seq import Seq
-from Bio.PDB import *
-import alphafold as af
-import openmm.app as app
-import openmm.unit as unit
+try:
+    import strawberryfields as sf
+except ImportError:  # optional dependency: pip install strawberryfields
+    sf = None
+try:
+    from strawberryfields.ops import *
+except ImportError:  # optional dependency: pip install strawberryfields
+    pass
+try:
+    from Bio.Seq import Seq
+except ImportError:  # optional dependency: pip install biopython
+    Seq = None
+try:
+    from Bio.PDB import *
+except ImportError:  # optional dependency: pip install biopython
+    pass
+try:
+    import alphafold as af
+except ImportError:  # optional dependency: pip install alphafold
+    af = None
+try:
+    import openmm.app as app
+except ImportError:  # optional dependency: pip install openmm
+    app = None
+try:
+    import openmm.unit as unit
+except ImportError:  # optional dependency: pip install openmm
+    unit = None
 from typing import Dict, List, Optional, Tuple, Any
 import logging
 
 # Quantum measurement hardware (only for quantum resources)
-import quantum_opus  # For single photon detection
-import swabian_instruments  # For coincidence detection
-import altera_quantum  # For quantum state tomography
+try:
+    import quantum_opus  # For single photon detection
+except ImportError:  # optional dependency: pip install quantum_opus
+    quantum_opus = None
+try:
+    import swabian_instruments  # For coincidence detection
+except ImportError:  # optional dependency: pip install swabian_instruments
+    swabian_instruments = None
+try:
+    import altera_quantum  # For quantum state tomography
+except ImportError:  # optional dependency: pip install altera_quantum
+    altera_quantum = None
 
 logger = logging.getLogger(__name__)
 

@@ -1,10 +1,34 @@
+from __future__ import annotations
+
 from sre_parse import State
-import numpy as np
-import strawberryfields as sf
-from strawberryfields.ops import Sgate, Dgate, Rgate, BSgate, State
-from Bio.Seq import Seq
-from Bio.PDB import *
-import alphafold as af
+try:
+    import numpy as np
+except ImportError:  # optional dependency: pip install numpy
+    np = None
+try:
+    import strawberryfields as sf
+except ImportError:  # optional dependency: pip install strawberryfields
+    sf = None
+try:
+    from strawberryfields.ops import Sgate, Dgate, Rgate, BSgate, State
+except ImportError:  # optional dependency: pip install strawberryfields
+    Sgate = None
+    Dgate = None
+    Rgate = None
+    BSgate = None
+    State = None
+try:
+    from Bio.Seq import Seq
+except ImportError:  # optional dependency: pip install biopython
+    Seq = None
+try:
+    from Bio.PDB import *
+except ImportError:  # optional dependency: pip install biopython
+    pass
+try:
+    import alphafold as af
+except ImportError:  # optional dependency: pip install alphafold
+    af = None
 
 # Mock hardware interfaces
 class active_motif_chipseq:

@@ -54,3 +54,9 @@ The **Quantum Biology Framework** is an advanced toolkit designed to revolutioni
 ## 💡 Notes
 - This framework is a modular, customizable solution aimed at revolutionizing healthcare with quantum and AI technologies.
 - Contribute to the repository or customize the framework for your unique needs!
+
+## Optional dependencies
+
+This repository imports without the heavy scientific stack (numpy, torch,
+tensorflow, qiskit, cirq, ...). Clone it and run it; install only the packages
+the parts you actually use need. See [OPTIONAL_DEPENDENCIES.md](OPTIONAL_DEPENDENCIES.md).
