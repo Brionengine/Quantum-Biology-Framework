@@ -474,10 +474,18 @@ class EndoplasmicReticulum:
         folding_rate = 0.1 * self.chaperones['bip']['active'] * \
                       self.protein_folding['unfolded']
         
-        misfolding_rate = 0.05 * self.protein_folding['folding'] * \
-                         (1.0 - sum(c['active']/c['total'] 
-                                  for c in self.chaperones.values())/3.0
-        
+        # Misfolding falls as mean chaperone occupancy rises. The divisor is
+        # taken from the dict rather than hardcoded, so adding a chaperone
+        # cannot silently skew the normalization.
+        mean_chaperone_activity = (
+            sum(c['active'] / c['total'] for c in self.chaperones.values())
+            / len(self.chaperones)
+        )
+        misfolding_rate = (
+            0.05 * self.protein_folding['folding'] * (1.0 - mean_chaperone_activity)
+        )
+
+
         completion_rate = 0.2 * self.protein_folding['folding'] * \
                          self.chaperones['pdi']['active']
         
@@ -1139,10 +1147,18 @@ class EndoplasmicReticulum:
         folding_rate = 0.1 * self.chaperones['bip']['active'] * \
                       self.protein_folding['unfolded']
         
-        misfolding_rate = 0.05 * self.protein_folding['folding'] * \
-                         (1.0 - sum(c['active']/c['total'] 
-                                  for c in self.chaperones.values())/3.0
-        
+        # Misfolding falls as mean chaperone occupancy rises. The divisor is
+        # taken from the dict rather than hardcoded, so adding a chaperone
+        # cannot silently skew the normalization.
+        mean_chaperone_activity = (
+            sum(c['active'] / c['total'] for c in self.chaperones.values())
+            / len(self.chaperones)
+        )
+        misfolding_rate = (
+            0.05 * self.protein_folding['folding'] * (1.0 - mean_chaperone_activity)
+        )
+
+
         completion_rate = 0.2 * self.protein_folding['folding'] * \
                          self.chaperones['pdi']['active']
         
@@ -1367,6 +1383,7 @@ class ProteinQualityControl:
         }
 
 class SynapticVesicleDynamics:
+    def initialize_quantum_state(self) -> sf.engine.Result:
         """Initialize quantum state for synaptic plasticity"""
         prog = sf.Program(4)
         eng = sf.Engine("fock", backend_options={"cutoff_dim": 8})
@@ -2384,10 +2401,18 @@ class EndoplasmicReticulum:
         folding_rate = 0.1 * self.chaperones['bip']['active'] * \
                       self.protein_folding['unfolded']
         
-        misfolding_rate = 0.05 * self.protein_folding['folding'] * \
-                         (1.0 - sum(c['active']/c['total'] 
-                                  for c in self.chaperones.values())/3.0
-        
+        # Misfolding falls as mean chaperone occupancy rises. The divisor is
+        # taken from the dict rather than hardcoded, so adding a chaperone
+        # cannot silently skew the normalization.
+        mean_chaperone_activity = (
+            sum(c['active'] / c['total'] for c in self.chaperones.values())
+            / len(self.chaperones)
+        )
+        misfolding_rate = (
+            0.05 * self.protein_folding['folding'] * (1.0 - mean_chaperone_activity)
+        )
+
+
         completion_rate = 0.2 * self.protein_folding['folding'] * \
                          self.chaperones['pdi']['active']
         
@@ -2637,6 +2662,7 @@ class BSgate(Sgate): pass
 from Bio.Seq import Seq
 
 class SynapticVesicleDynamics:
+    def initialize_quantum_state(self) -> sf.engine.Result:
         """Initialize quantum state for synaptic plasticity"""
         prog = sf.Program(4)
         eng = sf.Engine("fock", backend_options={"cutoff_dim": 8})
@@ -3288,6 +3314,9 @@ class ReceptorSignaling:
         """Update protein kinase activities"""
         # PKA activation by cAMP
         pka_activation = self.second_messengers['camp'] * \
+                        (self.kinases['pka']['total'] - self.kinases['pka']['active'])
+        self.kinases['pka']['active'] += pka_activation * dt
+
 import numpy as np
 import strawberryfields as sf
 from strawberryfields.ops import *
@@ -5050,7 +5079,6 @@ class MembraneLipidDynamics:
         }
 
 class ReceptorSignaling:
-import numpy as np
     """Models receptor signaling cascades"""
     def __init__(self):
         self.receptors = {
@@ -5459,7 +5487,6 @@ class MitochondrialDynamics:
             'calcium_uniporter': self.calcium_uniporter
         }
 
-class EndoplasmicReticulum:
 import strawberryfields as sf
 from strawberryfields.ops import *
 from Bio.Seq import Seq
@@ -5792,7 +5819,7 @@ class SynapticPlasticity:
         
         self.quantum_state = self.initialize_quantum_state()
         
-    def initialize_quantum_state(self) -> sf.engine.Result:
+class EndoplasmicReticulum:
     """Models endoplasmic reticulum function and protein processing"""
     def __init__(self):
         self.calcium_stores = 500.0  # μM
@@ -5868,10 +5895,18 @@ class SynapticPlasticity:
         folding_rate = 0.1 * self.chaperones['bip']['active'] * \
                       self.protein_folding['unfolded']
         
-        misfolding_rate = 0.05 * self.protein_folding['folding'] * \
-                         (1.0 - sum(c['active']/c['total'] 
-                                  for c in self.chaperones.values())/3.0
-        
+        # Misfolding falls as mean chaperone occupancy rises. The divisor is
+        # taken from the dict rather than hardcoded, so adding a chaperone
+        # cannot silently skew the normalization.
+        mean_chaperone_activity = (
+            sum(c['active'] / c['total'] for c in self.chaperones.values())
+            / len(self.chaperones)
+        )
+        misfolding_rate = (
+            0.05 * self.protein_folding['folding'] * (1.0 - mean_chaperone_activity)
+        )
+
+
         completion_rate = 0.2 * self.protein_folding['folding'] * \
                          self.chaperones['pdi']['active']
         
@@ -6096,6 +6131,7 @@ class ProteinQualityControl:
         }
 
 class SynapticVesicleDynamics:
+    def initialize_quantum_state(self) -> sf.engine.Result:
         """Initialize quantum state for synaptic plasticity"""
         prog = sf.Program(4)
         eng = sf.Engine("fock", backend_options={"cutoff_dim": 8})
@@ -6438,7 +6474,7 @@ class SynapticProteinInteractions:
             self.proteins['SNARE'][protein]['free'] -= delta_complex
             self.proteins['SNARE'][protein]['bound'] += delta_complex
             
-    def _update_calcium_sensors(self, dt: float, calcium: float):
+class SynapticVesicleDynamics:
     """Models synaptic vesicle dynamics with quantum measurements"""
     def __init__(self):
         self.vesicle_pools = {
@@ -6838,7 +6874,7 @@ class BiologicalNeuralEntanglement:
             logger.error(f"Error during cleanup: {e}")
             raise
 
-class CalciumSignaling:
+    def _update_calcium_sensors(self, dt: float, calcium: float):
         """Update calcium sensor states"""
         # Calcium binding to synaptotagmin (Hill equation)
         n_hill = 4
